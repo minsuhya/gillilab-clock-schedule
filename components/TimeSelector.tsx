@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import React, { useState, useMemo } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Platform, ViewStyle, TextStyle } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import { DESIGN_SYSTEM } from '@/constants/Design';
+import { useTheme } from '@/hooks/useTheme';
+import { Theme } from '@/constants/Theme';
 
 interface TimeSelectorProps {
   label: string;
@@ -14,6 +15,9 @@ export const TimeSelector: React.FC<TimeSelectorProps> = ({
   time,
   onChange,
 }) => {
+  const { theme } = useTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
+  
   const [show, setShow] = useState(false);
   const [tempDate, setTempDate] = useState(() => {
     const [hours, minutes] = time.split(':').map(Number);
@@ -68,36 +72,43 @@ export const TimeSelector: React.FC<TimeSelectorProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: Theme) => StyleSheet.create<{
+  container: ViewStyle;
+  label: TextStyle;
+  timeButton: ViewStyle;
+  timeDisplay: ViewStyle;
+  timeIcon: TextStyle;
+  timeText: TextStyle;
+}>({
   container: {
-    marginVertical: DESIGN_SYSTEM.spacing.sm,
+    marginVertical: theme.spacing.sm,
   },
   label: {
-    fontSize: DESIGN_SYSTEM.typography.fontSize.md,
-    fontWeight: DESIGN_SYSTEM.typography.fontWeight.bold,
-    color: DESIGN_SYSTEM.colors.text.primary,
-    marginBottom: DESIGN_SYSTEM.spacing.sm,
+    fontSize: theme.typography.fontSize.md,
+    fontWeight: theme.typography.fontWeight.bold as any,
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing.sm,
   },
   timeButton: {
-    backgroundColor: DESIGN_SYSTEM.colors.background.secondary,
-    borderRadius: DESIGN_SYSTEM.borderRadius.md,
-    padding: DESIGN_SYSTEM.spacing.lg,
+    backgroundColor: theme.colors.background.secondary,
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing.lg,
     borderWidth: 2,
-    borderColor: '#E5E7EB',
+    borderColor: theme.colors.border.medium,
   },
   timeDisplay: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: DESIGN_SYSTEM.spacing.sm,
+    gap: theme.spacing.sm,
   },
   timeIcon: {
-    fontSize: DESIGN_SYSTEM.typography.fontSize.xl,
+    fontSize: theme.typography.fontSize.xl,
   },
   timeText: {
-    fontSize: DESIGN_SYSTEM.typography.fontSize.xl,
-    fontWeight: DESIGN_SYSTEM.typography.fontWeight.bold,
-    color: DESIGN_SYSTEM.colors.text.primary,
+    fontSize: theme.typography.fontSize.xl,
+    fontWeight: theme.typography.fontWeight.bold as any,
+    color: theme.colors.text.primary,
     fontFamily: 'monospace',
   },
 });

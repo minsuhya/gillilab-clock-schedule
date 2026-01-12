@@ -1,0 +1,70 @@
+{
+  "app": {
+    "name": "ClockPlan",
+    "greeting": "Hello 👋",
+    "currentTime": "Current Time",
+    "todaySchedules": "Today's Schedule",
+    "scheduleList": "Schedule List",
+    "allSchedules": "All",
+    "enjoyFreeTime": "Enjoy your free time!"
+  },
+  "schedule": {
+    "add": "+ Add Schedule",
+    "edit": "Edit",
+    "new": "New Schedule",
+    "create": "Create Schedule",
+    "createSchedule": "Create Schedule",
+    "editSchedule": "Edit Schedule",
+    "save": "Save",
+    "saveEdit": "✓ Save Changes",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "deleteSchedule": "Delete Schedule",
+    "deleteButton": "🗑️ Delete Schedule",
+    "deleteConfirm": "Delete this schedule?",
+    "confirmDelete": "Delete this schedule?",
+    "confirmSave": "Update Complete",
+    "continue": "Continue",
+    "inProgress": "In Progress",
+    "noSchedules": "No schedules",
+    "noCurrentSchedule": "No ongoing schedule",
+    "createFirstSchedule": "Tap + to create your first schedule"
+  },
+  "form": {
+    "title": "Title",
+    "titlePlaceholder": "Enter schedule title",
+    "start": "Start",
+    "end": "End",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "category": "Category",
+    "notification": "Enable Notification",
+    "notificationDescription": "Receive notification when schedule starts",
+    "notificationDesc": "Receive notification when schedule starts",
+    "required": "*"
+  },
+  "error": {
+    "error": "Error",
+    "titleRequired": "Please enter a title",
+    "invalidEndTime": "End time must be after start time",
+    "timeConflict": "Time Overlap",
+    "timeConflictMessage": "Another schedule exists. Continue?",
+    "timeOverlap": "Time Overlap",
+    "scheduleExists": "Another schedule exists. Continue?",
+    "continue": "Continue"
+  },
+  "count": {
+    "items": "items",
+    "schedules": "schedules"
+  },
+  "settings": {
+    "title": "Settings",
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System Default",
+    "language": "Language",
+    "languageEn": "English",
+    "languageKo": "Korean"
+  }
+}

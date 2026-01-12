@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -8,9 +8,12 @@ import {
   ScrollView,
   Alert,
   Switch,
+  ViewStyle,
+  TextStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { CategoryPicker } from '@/components/CategoryPicker';
 import { TimeSelector } from '@/components/TimeSelector';
 import { useScheduleStore } from '@/store/scheduleStore';
@@ -18,12 +21,16 @@ import { CategoryType } from '@/types';
 import { getCategoryColor } from '@/utils/colorUtils';
 import { isEndTimeValid } from '@/utils/timeUtils';
 import { hasOverlap } from '@/utils/scheduleUtils';
-import { DESIGN_SYSTEM } from '@/constants/Design';
+import { useTheme } from '@/hooks/useTheme';
+import { Theme } from '@/constants/Theme';
 
 export default function ModalScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const scheduleId = params.scheduleId as string | undefined;
+  const { t } = useTranslation('common');
+  const { theme } = useTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
 
   const { schedules, addSchedule, updateSchedule, deleteSchedule, getScheduleById } =
     useScheduleStore();
@@ -42,12 +49,12 @@ export default function ModalScreen() {
 
   const handleSave = async () => {
     if (!title.trim()) {
-      Alert.alert('오류', '제목을 입력해주세요');
+      Alert.alert(t('error.error'), t('error.titleRequired'));
       return;
     }
 
     if (!isEndTimeValid(startTime, endTime)) {
-      Alert.alert('오류', '종료 시간은 시작 시간 이후여야 합니다');
+      Alert.alert(t('error.error'), t('error.invalidEndTime'));
       return;
     }
 
@@ -70,12 +77,12 @@ export default function ModalScreen() {
 
     if (hasOverlap(tempSchedule, schedules)) {
       Alert.alert(
-        '시간 중복',
-        '이미 다른 일정이 있습니다. 계속하시겠습니까?',
+        t('error.timeConflict'),
+        t('error.timeConflictMessage'),
         [
-          { text: '취소', style: 'cancel' },
+          { text: t('schedule.cancel'), style: 'cancel' },
           {
-            text: '계속',
+            text: t('schedule.continue'),
             onPress: async () => {
               await saveSchedule(scheduleData);
             },
@@ -99,10 +106,10 @@ export default function ModalScreen() {
   const handleDelete = () => {
     if (!scheduleId) return;
 
-    Alert.alert('일정 삭제', '이 일정을 삭제하시겠습니까?', [
-      { text: '취소', style: 'cancel' },
+    Alert.alert(t('schedule.deleteSchedule'), t('schedule.deleteConfirm'), [
+      { text: t('schedule.cancel'), style: 'cancel' },
       {
-        text: '삭제',
+        text: t('schedule.delete'),
         style: 'destructive',
         onPress: async () => {
           await deleteSchedule(scheduleId);
@@ -117,18 +124,22 @@ export default function ModalScreen() {
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.subtitle}>{scheduleId ? '수정' : '새로운 일정'}</Text>
-          <Text style={styles.title}>{scheduleId ? '일정 편집' : '일정 만들기'}</Text>
+          <Text style={styles.subtitle}>
+            {scheduleId ? t('schedule.edit') : t('schedule.new')}
+          </Text>
+          <Text style={styles.title}>
+            {scheduleId ? t('schedule.editSchedule') : t('schedule.createSchedule')}
+          </Text>
         </View>
 
         {/* Form Card */}
         <View style={styles.formCard}>
           <View style={styles.field}>
-            <Text style={styles.label}>제목 *</Text>
+            <Text style={styles.label}>{t('form.title')} *</Text>
             <TextInput
               style={styles.input}
-              placeholder="일정 제목을 입력하세요"
-              placeholderTextColor={DESIGN_SYSTEM.colors.text.tertiary}
+              placeholder={t('form.titlePlaceholder')}
+              placeholderTextColor={theme.colors.text.tertiary}
               value={title}
               onChangeText={setTitle}
               maxLength={50}
@@ -138,8 +149,8 @@ export default function ModalScreen() {
 
           <View style={styles.divider} />
 
-          <TimeSelector label="시작 시간" time={startTime} onChange={setStartTime} />
-          <TimeSelector label="종료 시간" time={endTime} onChange={setEndTime} />
+          <TimeSelector label={t('form.startTime')} time={startTime} onChange={setStartTime} />
+          <TimeSelector label={t('form.endTime')} time={endTime} onChange={setEndTime} />
 
           <View style={styles.divider} />
 
@@ -149,14 +160,14 @@ export default function ModalScreen() {
 
           <View style={styles.switchRow}>
             <View style={styles.switchLabel}>
-              <Text style={styles.label}>알림 받기</Text>
-              <Text style={styles.switchDescription}>일정 시작 시 알림을 받습니다</Text>
+              <Text style={styles.label}>{t('form.notification')}</Text>
+              <Text style={styles.switchDescription}>{t('form.notificationDescription')}</Text>
             </View>
             <Switch 
               value={notificationEnabled} 
               onValueChange={setNotificationEnabled}
-              trackColor={{ false: '#D1D5DB', true: DESIGN_SYSTEM.colors.primary + '40' }}
-              thumbColor={notificationEnabled ? DESIGN_SYSTEM.colors.primary : '#F3F4F6'}
+              trackColor={{ false: '#D1D5DB', true: theme.colors.primary + '40' }}
+              thumbColor={notificationEnabled ? theme.colors.primary : '#F3F4F6'}
             />
           </View>
         </View>
@@ -169,7 +180,7 @@ export default function ModalScreen() {
             activeOpacity={0.8}
           >
             <Text style={styles.saveButtonText}>
-              {scheduleId ? '✓ 수정 완료' : '+ 일정 추가'}
+              {scheduleId ? t('schedule.saveEdit') : t('schedule.add')}
             </Text>
           </TouchableOpacity>
 
@@ -179,7 +190,7 @@ export default function ModalScreen() {
               onPress={handleDelete}
               activeOpacity={0.8}
             >
-              <Text style={styles.deleteButtonText}>🗑️ 일정 삭제</Text>
+              <Text style={styles.deleteButtonText}>{t('schedule.deleteButton')}</Text>
             </TouchableOpacity>
           )}
 
@@ -188,7 +199,7 @@ export default function ModalScreen() {
             onPress={() => router.back()}
             activeOpacity={0.8}
           >
-            <Text style={styles.cancelButtonText}>취소</Text>
+            <Text style={styles.cancelButtonText}>{t('schedule.cancel')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -196,122 +207,145 @@ export default function ModalScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: Theme) => StyleSheet.create<{
+  container: ViewStyle;
+  scrollView: ViewStyle;
+  content: ViewStyle;
+  header: ViewStyle;
+  subtitle: TextStyle;
+  title: TextStyle;
+  formCard: ViewStyle;
+  field: ViewStyle;
+  label: TextStyle;
+  input: TextStyle;
+  charCount: TextStyle;
+  divider: ViewStyle;
+  switchRow: ViewStyle;
+  switchLabel: ViewStyle;
+  switchDescription: TextStyle;
+  buttons: ViewStyle;
+  saveButton: ViewStyle;
+  saveButtonText: TextStyle;
+  deleteButton: ViewStyle;
+  deleteButtonText: TextStyle;
+  cancelButton: ViewStyle;
+  cancelButtonText: TextStyle;
+}>({
   container: {
     flex: 1,
-    backgroundColor: DESIGN_SYSTEM.colors.background.secondary,
+    backgroundColor: theme.colors.background.secondary,
   },
   scrollView: {
     flex: 1,
   },
   content: {
-    padding: DESIGN_SYSTEM.spacing.xl,
-    paddingTop: DESIGN_SYSTEM.spacing.md,
+    padding: theme.spacing.xl,
+    paddingTop: theme.spacing.md,
   },
   header: {
-    marginBottom: DESIGN_SYSTEM.spacing.xxl,
+    marginBottom: theme.spacing.xxl,
   },
   subtitle: {
-    fontSize: DESIGN_SYSTEM.typography.fontSize.sm,
-    fontWeight: DESIGN_SYSTEM.typography.fontWeight.semibold,
-    color: DESIGN_SYSTEM.colors.primary,
-    marginBottom: DESIGN_SYSTEM.spacing.xs,
+    fontSize: theme.typography.fontSize.sm,
+    fontWeight: theme.typography.fontWeight.semibold as any,
+    color: theme.colors.primary,
+    marginBottom: theme.spacing.xs,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
   title: {
-    fontSize: DESIGN_SYSTEM.typography.fontSize.display,
-    fontWeight: DESIGN_SYSTEM.typography.fontWeight.extrabold,
-    color: DESIGN_SYSTEM.colors.text.primary,
+    fontSize: theme.typography.fontSize.display,
+    fontWeight: theme.typography.fontWeight.extrabold as any,
+    color: theme.colors.text.primary,
   },
   formCard: {
-    backgroundColor: DESIGN_SYSTEM.colors.background.primary,
-    borderRadius: DESIGN_SYSTEM.borderRadius.xl,
-    padding: DESIGN_SYSTEM.spacing.xl,
-    marginBottom: DESIGN_SYSTEM.spacing.xl,
-    ...DESIGN_SYSTEM.shadows.md,
+    backgroundColor: theme.colors.background.primary,
+    borderRadius: theme.borderRadius.xl,
+    padding: theme.spacing.xl,
+    marginBottom: theme.spacing.xl,
+    ...theme.shadows.md,
   },
   field: {
-    marginBottom: DESIGN_SYSTEM.spacing.md,
+    marginBottom: theme.spacing.md,
   },
   label: {
-    fontSize: DESIGN_SYSTEM.typography.fontSize.md,
-    fontWeight: DESIGN_SYSTEM.typography.fontWeight.bold,
-    color: DESIGN_SYSTEM.colors.text.primary,
-    marginBottom: DESIGN_SYSTEM.spacing.sm,
+    fontSize: theme.typography.fontSize.md,
+    fontWeight: theme.typography.fontWeight.bold as any,
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing.sm,
   },
   input: {
-    backgroundColor: DESIGN_SYSTEM.colors.background.secondary,
-    borderRadius: DESIGN_SYSTEM.borderRadius.md,
-    padding: DESIGN_SYSTEM.spacing.lg,
-    fontSize: DESIGN_SYSTEM.typography.fontSize.md,
+    backgroundColor: theme.colors.background.secondary,
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing.lg,
+    fontSize: theme.typography.fontSize.md,
     borderWidth: 2,
-    borderColor: '#E5E7EB',
-    color: DESIGN_SYSTEM.colors.text.primary,
+    borderColor: theme.colors.border.medium,
+    color: theme.colors.text.primary,
   },
   charCount: {
-    fontSize: DESIGN_SYSTEM.typography.fontSize.xs,
-    color: DESIGN_SYSTEM.colors.text.tertiary,
+    fontSize: theme.typography.fontSize.xs,
+    color: theme.colors.text.tertiary,
     textAlign: 'right',
-    marginTop: DESIGN_SYSTEM.spacing.xs,
+    marginTop: theme.spacing.xs,
   },
   divider: {
     height: 1,
-    backgroundColor: '#E5E7EB',
-    marginVertical: DESIGN_SYSTEM.spacing.lg,
+    backgroundColor: theme.colors.border.medium,
+    marginVertical: theme.spacing.lg,
   },
   switchRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: DESIGN_SYSTEM.spacing.sm,
+    paddingVertical: theme.spacing.sm,
   },
   switchLabel: {
     flex: 1,
   },
   switchDescription: {
-    fontSize: DESIGN_SYSTEM.typography.fontSize.sm,
-    color: DESIGN_SYSTEM.colors.text.secondary,
-    marginTop: DESIGN_SYSTEM.spacing.xs,
+    fontSize: theme.typography.fontSize.sm,
+    color: theme.colors.text.secondary,
+    marginTop: theme.spacing.xs,
   },
   buttons: {
-    gap: DESIGN_SYSTEM.spacing.md,
-    marginBottom: DESIGN_SYSTEM.spacing.xl,
+    gap: theme.spacing.md,
+    marginBottom: theme.spacing.xl,
   },
   saveButton: {
-    backgroundColor: DESIGN_SYSTEM.colors.primary,
-    padding: DESIGN_SYSTEM.spacing.lg,
-    borderRadius: DESIGN_SYSTEM.borderRadius.xl,
+    backgroundColor: theme.colors.primary,
+    padding: theme.spacing.lg,
+    borderRadius: theme.borderRadius.xl,
     alignItems: 'center',
-    ...DESIGN_SYSTEM.shadows.md,
+    ...theme.shadows.md,
   },
   saveButtonText: {
-    color: DESIGN_SYSTEM.colors.text.inverse,
-    fontSize: DESIGN_SYSTEM.typography.fontSize.lg,
-    fontWeight: DESIGN_SYSTEM.typography.fontWeight.bold,
+    color: theme.colors.text.inverse,
+    fontSize: theme.typography.fontSize.lg,
+    fontWeight: theme.typography.fontWeight.bold as any,
   },
   deleteButton: {
     backgroundColor: '#FEE2E2',
-    padding: DESIGN_SYSTEM.spacing.lg,
-    borderRadius: DESIGN_SYSTEM.borderRadius.xl,
+    padding: theme.spacing.lg,
+    borderRadius: theme.borderRadius.xl,
     alignItems: 'center',
     borderWidth: 2,
     borderColor: '#EF4444',
   },
   deleteButtonText: {
     color: '#DC2626',
-    fontSize: DESIGN_SYSTEM.typography.fontSize.lg,
-    fontWeight: DESIGN_SYSTEM.typography.fontWeight.bold,
+    fontSize: theme.typography.fontSize.lg,
+    fontWeight: theme.typography.fontWeight.bold as any,
   },
   cancelButton: {
-    backgroundColor: DESIGN_SYSTEM.colors.background.tertiary,
-    padding: DESIGN_SYSTEM.spacing.lg,
-    borderRadius: DESIGN_SYSTEM.borderRadius.xl,
+    backgroundColor: theme.colors.background.tertiary,
+    padding: theme.spacing.lg,
+    borderRadius: theme.borderRadius.xl,
     alignItems: 'center',
   },
   cancelButtonText: {
-    color: DESIGN_SYSTEM.colors.text.secondary,
-    fontSize: DESIGN_SYSTEM.typography.fontSize.lg,
-    fontWeight: DESIGN_SYSTEM.typography.fontWeight.semibold,
+    color: theme.colors.text.secondary,
+    fontSize: theme.typography.fontSize.lg,
+    fontWeight: theme.typography.fontWeight.semibold as any,
   },
 });

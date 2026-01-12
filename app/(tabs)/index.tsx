@@ -1,19 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { ClockView } from '@/components/ClockView';
 import { CurrentScheduleCard } from '@/components/CurrentScheduleCard';
 import { useScheduleStore } from '@/store/scheduleStore';
 import { getCurrentTime } from '@/utils/timeUtils';
 import { getCurrentSchedule } from '@/utils/scheduleUtils';
-import { DESIGN_SYSTEM } from '@/constants/Design';
+import { useTheme } from '@/hooks/useTheme';
+import { Theme } from '@/constants/Theme';
 
 export default function ClockScreen() {
   const router = useRouter();
+  const { theme } = useTheme();
+  const { t } = useTranslation('common');
   const schedules = useScheduleStore((state) => state.schedules);
   const [currentTime, setCurrentTime] = useState(getCurrentTime);
   const currentSchedule = getCurrentSchedule(schedules, currentTime);
+
+  const styles = useMemo(() => createStyles(theme), [theme]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -44,11 +50,11 @@ export default function ClockScreen() {
         <View style={styles.header}>
           <View style={styles.headerTop}>
             <View>
-              <Text style={styles.greeting}>안녕하세요 👋</Text>
-              <Text style={styles.title}>ClockPlan</Text>
+              <Text style={styles.greeting}>{t('app.greeting')}</Text>
+              <Text style={styles.title}>{t('app.name')}</Text>
             </View>
             <View style={styles.timeCard}>
-              <Text style={styles.timeLabel}>현재 시간</Text>
+              <Text style={styles.timeLabel}>{t('app.currentTime')}</Text>
               <Text style={styles.timeValue}>{currentTime}</Text>
             </View>
           </View>
@@ -59,7 +65,7 @@ export default function ClockScreen() {
 
           <View style={styles.clockSection}>
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>오늘의 일정</Text>
+              <Text style={styles.sectionTitle}>{t('app.todaySchedules')}</Text>
               <View style={styles.scheduleCount}>
                 <Text style={styles.scheduleCountText}>{schedules.length}</Text>
               </View>
@@ -86,10 +92,10 @@ export default function ClockScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: Theme) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: DESIGN_SYSTEM.colors.background.primary,
+    backgroundColor: theme.colors.background.primary,
   },
   scrollView: {
     flex: 1,
@@ -98,10 +104,10 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   header: {
-    paddingTop: DESIGN_SYSTEM.spacing.md,
-    paddingHorizontal: DESIGN_SYSTEM.spacing.xl,
-    paddingBottom: DESIGN_SYSTEM.spacing.lg,
-    backgroundColor: DESIGN_SYSTEM.colors.background.secondary,
+    paddingTop: theme.spacing.md,
+    paddingHorizontal: theme.spacing.xl,
+    paddingBottom: theme.spacing.lg,
+    backgroundColor: theme.colors.background.secondary,
   },
   headerTop: {
     flexDirection: 'row',
@@ -109,88 +115,88 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   greeting: {
-    fontSize: DESIGN_SYSTEM.typography.fontSize.md,
-    color: DESIGN_SYSTEM.colors.text.secondary,
-    marginBottom: DESIGN_SYSTEM.spacing.xs,
+    fontSize: theme.typography.fontSize.md,
+    color: theme.colors.text.secondary,
+    marginBottom: theme.spacing.xs,
   },
   title: {
-    fontSize: DESIGN_SYSTEM.typography.fontSize.display,
-    fontWeight: DESIGN_SYSTEM.typography.fontWeight.extrabold,
-    color: DESIGN_SYSTEM.colors.text.primary,
+    fontSize: theme.typography.fontSize.display,
+    fontWeight: theme.typography.fontWeight.extrabold,
+    color: theme.colors.text.primary,
     letterSpacing: -0.5,
   },
   timeCard: {
-    backgroundColor: DESIGN_SYSTEM.colors.accent.indigo,
-    paddingHorizontal: DESIGN_SYSTEM.spacing.lg,
-    paddingVertical: DESIGN_SYSTEM.spacing.md,
-    borderRadius: DESIGN_SYSTEM.borderRadius.lg,
+    backgroundColor: theme.colors.accent.indigo,
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.md,
+    borderRadius: theme.borderRadius.lg,
     alignItems: 'center',
-    ...DESIGN_SYSTEM.shadows.md,
+    ...theme.shadows.md,
   },
   timeLabel: {
-    fontSize: DESIGN_SYSTEM.typography.fontSize.xs,
+    fontSize: theme.typography.fontSize.xs,
     color: 'rgba(255, 255, 255, 0.8)',
-    fontWeight: DESIGN_SYSTEM.typography.fontWeight.semibold,
+    fontWeight: theme.typography.fontWeight.semibold,
     marginBottom: 2,
   },
   timeValue: {
-    fontSize: DESIGN_SYSTEM.typography.fontSize.xl,
-    fontWeight: DESIGN_SYSTEM.typography.fontWeight.bold,
-    color: DESIGN_SYSTEM.colors.text.inverse,
+    fontSize: theme.typography.fontSize.xl,
+    fontWeight: theme.typography.fontWeight.bold,
+    color: theme.colors.text.inverse,
     fontFamily: 'monospace',
   },
   content: {
     flex: 1,
   },
   clockSection: {
-    paddingTop: DESIGN_SYSTEM.spacing.xl,
+    paddingTop: theme.spacing.xl,
   },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: DESIGN_SYSTEM.spacing.xl,
-    marginBottom: DESIGN_SYSTEM.spacing.lg,
+    paddingHorizontal: theme.spacing.xl,
+    marginBottom: theme.spacing.lg,
   },
   sectionTitle: {
-    fontSize: DESIGN_SYSTEM.typography.fontSize.xxl,
-    fontWeight: DESIGN_SYSTEM.typography.fontWeight.bold,
-    color: DESIGN_SYSTEM.colors.text.primary,
+    fontSize: theme.typography.fontSize.xxl,
+    fontWeight: theme.typography.fontWeight.bold,
+    color: theme.colors.text.primary,
   },
   scheduleCount: {
-    backgroundColor: DESIGN_SYSTEM.colors.accent.indigo,
+    backgroundColor: theme.colors.accent.indigo,
     width: 32,
     height: 32,
-    borderRadius: DESIGN_SYSTEM.borderRadius.full,
+    borderRadius: theme.borderRadius.full,
     alignItems: 'center',
     justifyContent: 'center',
   },
   scheduleCountText: {
-    fontSize: DESIGN_SYSTEM.typography.fontSize.sm,
-    fontWeight: DESIGN_SYSTEM.typography.fontWeight.bold,
-    color: DESIGN_SYSTEM.colors.text.inverse,
+    fontSize: theme.typography.fontSize.sm,
+    fontWeight: theme.typography.fontWeight.bold,
+    color: theme.colors.text.inverse,
   },
   clockContainer: {
     alignItems: 'center',
   },
   fabContainer: {
     position: 'absolute',
-    right: DESIGN_SYSTEM.spacing.xl,
-    bottom: DESIGN_SYSTEM.spacing.xxxl,
+    right: theme.spacing.xl,
+    bottom: theme.spacing.xxxl,
   },
   fab: {
     width: 64,
     height: 64,
-    borderRadius: DESIGN_SYSTEM.borderRadius.full,
-    backgroundColor: DESIGN_SYSTEM.colors.accent.indigo,
+    borderRadius: theme.borderRadius.full,
+    backgroundColor: theme.colors.accent.indigo,
     alignItems: 'center',
     justifyContent: 'center',
-    ...DESIGN_SYSTEM.shadows.lg,
+    ...theme.shadows.lg,
   },
   fabIcon: {
     fontSize: 32,
-    color: DESIGN_SYSTEM.colors.text.inverse,
-    fontWeight: DESIGN_SYSTEM.typography.fontWeight.normal,
+    color: theme.colors.text.inverse,
+    fontWeight: theme.typography.fontWeight.normal,
     lineHeight: 32,
   },
 });

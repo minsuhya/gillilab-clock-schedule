@@ -1,6 +1,7 @@
 import React from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
@@ -14,6 +15,7 @@ function TabBarIcon(props: {
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const { t } = useTranslation('common');
 
   return (
     <Tabs
@@ -24,7 +26,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: '시계',
+          title: t('app.name'),
           tabBarIcon: ({ color }) => <TabBarIcon name="clock-o" color={color} />,
           headerShown: false,
         }}
@@ -32,8 +34,16 @@ export default function TabLayout() {
       <Tabs.Screen
         name="two"
         options={{
-          title: '목록',
+          title: t('app.scheduleList'),
           tabBarIcon: ({ color }) => <TabBarIcon name="list" color={color} />,
+          headerShown: false,
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: t('settings.title'),
+          tabBarIcon: ({ color }) => <TabBarIcon name="cog" color={color} />,
           headerShown: false,
         }}
       />

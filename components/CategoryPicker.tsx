@@ -1,8 +1,10 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useMemo } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ViewStyle, TextStyle } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { CategoryType } from '@/types';
-import { DEFAULT_CATEGORIES } from '@/constants/Categories';
-import { DESIGN_SYSTEM } from '@/constants/Design';
+import { getTranslatedCategories } from '@/utils/categoryUtils';
+import { useTheme } from '@/hooks/useTheme';
+import { Theme } from '@/constants/Theme';
 
 interface CategoryPickerProps {
   selectedCategory: CategoryType;
@@ -13,11 +15,16 @@ export const CategoryPicker: React.FC<CategoryPickerProps> = ({
   selectedCategory,
   onSelect,
 }) => {
+  const { t } = useTranslation('categories');
+  const { theme } = useTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
+  const categories = getTranslatedCategories();
+
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>카테고리</Text>
+      <Text style={styles.label}>{t('category', { ns: 'common' })}</Text>
       <View style={styles.categories}>
-        {DEFAULT_CATEGORIES.map((category) => {
+        {categories.map((category) => {
           const isSelected = selectedCategory === category.id;
           return (
             <TouchableOpacity
@@ -50,34 +57,41 @@ export const CategoryPicker: React.FC<CategoryPickerProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: Theme) => StyleSheet.create<{
+  container: ViewStyle;
+  label: TextStyle;
+  categories: ViewStyle;
+  categoryButton: ViewStyle;
+  categoryIcon: TextStyle;
+  categoryName: TextStyle;
+}>({
   container: {
-    marginVertical: DESIGN_SYSTEM.spacing.md,
+    marginVertical: theme.spacing.md,
   },
   label: {
-    fontSize: DESIGN_SYSTEM.typography.fontSize.md,
-    fontWeight: DESIGN_SYSTEM.typography.fontWeight.bold,
-    color: DESIGN_SYSTEM.colors.text.primary,
-    marginBottom: DESIGN_SYSTEM.spacing.sm,
+    fontSize: theme.typography.fontSize.md,
+    fontWeight: theme.typography.fontWeight.bold as any,
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing.sm,
   },
   categories: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: DESIGN_SYSTEM.spacing.sm,
+    gap: theme.spacing.sm,
   },
   categoryButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: DESIGN_SYSTEM.spacing.sm,
-    paddingHorizontal: DESIGN_SYSTEM.spacing.md,
-    borderRadius: DESIGN_SYSTEM.borderRadius.full,
-    gap: DESIGN_SYSTEM.spacing.xs,
+    paddingVertical: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.md,
+    borderRadius: theme.borderRadius.full,
+    gap: theme.spacing.xs,
   },
   categoryIcon: {
-    fontSize: DESIGN_SYSTEM.typography.fontSize.lg,
+    fontSize: theme.typography.fontSize.lg,
   },
   categoryName: {
-    fontSize: DESIGN_SYSTEM.typography.fontSize.sm,
-    fontWeight: DESIGN_SYSTEM.typography.fontWeight.bold,
+    fontSize: theme.typography.fontSize.sm,
+    fontWeight: theme.typography.fontWeight.bold as any,
   },
 });

@@ -1,0 +1,70 @@
+{
+  "app": {
+    "name": "ClockPlan",
+    "greeting": "안녕하세요 👋",
+    "currentTime": "현재 시간",
+    "todaySchedules": "오늘의 일정",
+    "scheduleList": "일정 목록",
+    "allSchedules": "전체",
+    "enjoyFreeTime": "자유 시간을 즐기세요!"
+  },
+  "schedule": {
+    "add": "+ 일정 추가",
+    "edit": "수정",
+    "new": "새로운 일정",
+    "create": "일정 만들기",
+    "createSchedule": "일정 만들기",
+    "editSchedule": "일정 편집",
+    "save": "저장",
+    "saveEdit": "✓ 수정 완료",
+    "cancel": "취소",
+    "delete": "삭제",
+    "deleteSchedule": "일정 삭제",
+    "deleteButton": "🗑️ 일정 삭제",
+    "deleteConfirm": "이 일정을 삭제하시겠습니까?",
+    "confirmDelete": "이 일정을 삭제하시겠습니까?",
+    "confirmSave": "수정 완료",
+    "continue": "계속",
+    "inProgress": "진행 중",
+    "noSchedules": "등록된 일정이 없습니다",
+    "noCurrentSchedule": "현재 진행 중인 일정이 없습니다",
+    "createFirstSchedule": "+ 버튼을 눌러 첫 일정을 만들어보세요"
+  },
+  "form": {
+    "title": "제목",
+    "titlePlaceholder": "일정 제목을 입력하세요",
+    "start": "시작",
+    "end": "종료",
+    "startTime": "시작 시간",
+    "endTime": "종료 시간",
+    "category": "카테고리",
+    "notification": "알림 받기",
+    "notificationDescription": "일정 시작 시 알림을 받습니다",
+    "notificationDesc": "일정 시작 시 알림을 받습니다",
+    "required": "*"
+  },
+  "error": {
+    "error": "오류",
+    "titleRequired": "제목을 입력해주세요",
+    "invalidEndTime": "종료 시간은 시작 시간 이후여야 합니다",
+    "timeConflict": "시간 중복",
+    "timeConflictMessage": "이미 다른 일정이 있습니다. 계속하시겠습니까?",
+    "timeOverlap": "시간 중복",
+    "scheduleExists": "이미 다른 일정이 있습니다. 계속하시겠습니까?",
+    "continue": "계속"
+  },
+  "count": {
+    "items": "개",
+    "schedules": "개"
+  },
+  "settings": {
+    "title": "설정",
+    "theme": "테마",
+    "themeLight": "라이트",
+    "themeDark": "다크",
+    "themeSystem": "시스템 기본값",
+    "language": "언어",
+    "languageEn": "영어",
+    "languageKo": "한국어"
+  }
+}

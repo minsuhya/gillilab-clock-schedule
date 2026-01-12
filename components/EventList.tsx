@@ -1,9 +1,11 @@
-import React from 'react';
-import { FlatList, StyleSheet, View, Text } from 'react-native';
+import React, { useMemo } from 'react';
+import { FlatList, StyleSheet, View, Text, ViewStyle, TextStyle } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Schedule } from '@/types';
 import { EventItem } from './EventItem';
 import { sortSchedulesByTime } from '@/utils/scheduleUtils';
-import { DESIGN_SYSTEM } from '@/constants/Design';
+import { useTheme } from '@/hooks/useTheme';
+import { Theme } from '@/constants/Theme';
 
 interface EventListProps {
   schedules: Schedule[];
@@ -11,6 +13,9 @@ interface EventListProps {
 }
 
 export const EventList: React.FC<EventListProps> = ({ schedules, onEventPress }) => {
+  const { t } = useTranslation('common');
+  const { theme } = useTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const sortedSchedules = sortSchedulesByTime(schedules);
 
   const renderItem = ({ item }: { item: Schedule }) => (
@@ -21,8 +26,8 @@ export const EventList: React.FC<EventListProps> = ({ schedules, onEventPress })
     return (
       <View style={styles.emptyContainer}>
         <Text style={styles.emptyIcon}>📅</Text>
-        <Text style={styles.emptyText}>등록된 일정이 없습니다</Text>
-        <Text style={styles.emptySubtext}>+ 버튼을 눌러 첫 일정을 만들어보세요</Text>
+        <Text style={styles.emptyText}>{t('schedule.noSchedules')}</Text>
+        <Text style={styles.emptySubtext}>{t('schedule.createFirstSchedule')}</Text>
       </View>
     );
   }
@@ -38,32 +43,38 @@ export const EventList: React.FC<EventListProps> = ({ schedules, onEventPress })
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: Theme) => StyleSheet.create<{
+  listContainer: ViewStyle;
+  emptyContainer: ViewStyle;
+  emptyIcon: TextStyle;
+  emptyText: TextStyle;
+  emptySubtext: TextStyle;
+}>({
   listContainer: {
-    paddingVertical: DESIGN_SYSTEM.spacing.md,
-    paddingBottom: DESIGN_SYSTEM.spacing.xxxl,
+    paddingVertical: theme.spacing.md,
+    paddingBottom: theme.spacing.xxxl,
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: DESIGN_SYSTEM.spacing.xxxl,
-    paddingVertical: DESIGN_SYSTEM.spacing.xxxl * 2,
+    paddingHorizontal: theme.spacing.xxxl,
+    paddingVertical: theme.spacing.xxxl * 2,
   },
   emptyIcon: {
     fontSize: 64,
-    marginBottom: DESIGN_SYSTEM.spacing.lg,
+    marginBottom: theme.spacing.lg,
   },
   emptyText: {
-    fontSize: DESIGN_SYSTEM.typography.fontSize.xl,
-    fontWeight: DESIGN_SYSTEM.typography.fontWeight.bold,
-    color: DESIGN_SYSTEM.colors.text.secondary,
-    marginBottom: DESIGN_SYSTEM.spacing.sm,
+    fontSize: theme.typography.fontSize.xl,
+    fontWeight: theme.typography.fontWeight.bold as any,
+    color: theme.colors.text.secondary,
+    marginBottom: theme.spacing.sm,
     textAlign: 'center',
   },
   emptySubtext: {
-    fontSize: DESIGN_SYSTEM.typography.fontSize.md,
-    color: DESIGN_SYSTEM.colors.text.tertiary,
+    fontSize: theme.typography.fontSize.md,
+    color: theme.colors.text.tertiary,
     textAlign: 'center',
   },
 });
