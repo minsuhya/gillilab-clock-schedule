@@ -1,19 +1,102 @@
-import * as Notifications from 'expo-notifications';
-import { Schedule } from '@/types';
-import { timeToMinutes } from './timeUtils';
+import Constants from 'expo-constants';
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+import type { Schedule } from '@/types';
+
+interface NotificationHandlerResult {
+  shouldShowAlert: boolean;
+  shouldPlaySound: boolean;
+  shouldSetBadge: boolean;
+  shouldShowBanner: boolean;
+  shouldShowList: boolean;
+}
+
+interface NotificationHandler {
+  handleNotification: () => Promise<NotificationHandlerResult>;
+}
+
+type NotificationPermissionStatus = 'granted' | 'denied' | 'undetermined';
+
+interface ScheduleNotificationInput {
+  content: {
+    title: string;
+    body: string;
+    data: {
+      scheduleId: string;
+    };
+  };
+  trigger: {
+    type: string;
+    date: Date;
+  };
+}
+
+interface NotificationsModule {
+  setNotificationHandler: (handler: NotificationHandler) => void;
+  getPermissionsAsync: () => Promise<{ status: NotificationPermissionStatus }>;
+  requestPermissionsAsync: () => Promise<{ status: NotificationPermissionStatus }>;
+  scheduleNotificationAsync: (input: ScheduleNotificationInput) => Promise<string>;
+  cancelScheduledNotificationAsync: (notificationId: string) => Promise<void>;
+  cancelAllScheduledNotificationsAsync: () => Promise<void>;
+  SchedulableTriggerInputTypes: {
+    DATE: string;
+  };
+}
+
+let cachedNotifications: NotificationsModule | null = null;
+let handlerInitialized = false;
+
+const isExpoGo = Constants.appOwnership === 'expo';
+
+async function getNotificationsModule(): Promise<NotificationsModule | null> {
+  if (isExpoGo) {
+    return null;
+  }
+
+  if (cachedNotifications) {
+    return cachedNotifications;
+  }
+
+  try {
+    const module = (await import('expo-notifications')) as unknown as NotificationsModule;
+    cachedNotifications = module;
+    return module;
+  } catch (error) {
+    console.warn('expo-notifications 모듈을 불러오지 못했습니다:', error);
+    return null;
+  }
+}
+
+async function ensureNotificationHandler(): Promise<void> {
+  if (handlerInitialized) {
+    return;
+  }
+
+  const Notifications = await getNotificationsModule();
+  if (!Notifications) {
+    return;
+  }
+
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+      shouldShowBanner: true,
+      shouldShowList: true,
+    }),
+  });
+  handlerInitialized = true;
+}
 
 export async function requestPermissions(): Promise<boolean> {
   try {
+    const Notifications = await getNotificationsModule();
+    if (!Notifications) {
+      console.warn('Expo Go에서는 알림 기능을 사용할 수 없습니다.');
+      return false;
+    }
+
+    await ensureNotificationHandler();
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
     
@@ -31,6 +114,13 @@ export async function requestPermissions(): Promise<boolean> {
 
 export async function scheduleNotification(schedule: Schedule): Promise<string | null> {
   try {
+    const Notifications = await getNotificationsModule();
+    if (!Notifications) {
+      console.warn('Expo Go에서는 알림 기능을 사용할 수 없습니다.');
+      return null;
+    }
+
+    await ensureNotificationHandler();
     const hasPermission = await requestPermissions();
     if (!hasPermission) {
       console.warn('Notification permission denied');
@@ -67,6 +157,11 @@ export async function scheduleNotification(schedule: Schedule): Promise<string |
 
 export async function cancelNotification(notificationId: string): Promise<void> {
   try {
+    const Notifications = await getNotificationsModule();
+    if (!Notifications) {
+      return;
+    }
+
     await Notifications.cancelScheduledNotificationAsync(notificationId);
   } catch (error) {
     console.error('Failed to cancel notification:', error);
@@ -75,6 +170,11 @@ export async function cancelNotification(notificationId: string): Promise<void> 
 
 export async function cancelAllNotifications(): Promise<void> {
   try {
+    const Notifications = await getNotificationsModule();
+    if (!Notifications) {
+      return;
+    }
+
     await Notifications.cancelAllScheduledNotificationsAsync();
   } catch (error) {
     console.error('Failed to cancel all notifications:', error);

@@ -1,17 +1,17 @@
 # AGENTS.md - ClockPlan Development Guide
 
-> Guidance for agentic coding assistants working in this repository.
+Guidance for agentic coding assistants working in this repository.
 
 ## Project Snapshot
 
-- **Stack**: Expo (React Native), TypeScript, Zustand, AsyncStorage, React Native SVG
-- **App**: 24-hour clock UI for daily schedules
-- **Status**: MVP implemented
+- Stack: Expo (React Native), TypeScript, Zustand, AsyncStorage, React Native SVG
+- App: 24-hour clock UI for daily schedules
+- Status: MVP implemented
 
 ## Rules from Other Tools
 
-- **Cursor rules**: None found in `.cursor/rules/` or `.cursorrules`
-- **Copilot rules**: None found in `.github/copilot-instructions.md`
+- Cursor rules: None found in `.cursor/rules/` or `.cursorrules`
+- Copilot rules: None found in `.github/copilot-instructions.md`
 
 ## Commands
 
@@ -65,6 +65,7 @@ npx tsc --noEmit
 
 ### TypeScript
 
+- Strict mode enabled (`tsconfig.json`).
 - No `any`. Use explicit interfaces and types.
 - Prefer `interface` for object shapes; use `type` for unions/aliases.
 - Keep function input/output types explicit when public or reused.
@@ -76,7 +77,7 @@ Order imports by category, with a blank line between groups:
 
 1. React / React Native
 2. Third-party libraries
-3. Internal modules (use `@/` alias)
+3. Internal modules (use `@/` alias from `tsconfig.json`)
 
 ```typescript
 import React, { useCallback, useMemo } from 'react';
@@ -121,19 +122,32 @@ export const Component: React.FC<ComponentProps> = ({ ... }) => {
 
 ### Localization
 
-- User-facing strings should be **Korean** by default.
+- User-facing strings should be Korean by default.
 - Use the existing i18n setup when present (`i18n/config.ts`).
 
 ### Time Rules
 
-- Time format is **"HH:mm"** (24-hour, zero-padded).
-- Midnight-spanning schedules are **not supported** in MVP.
+- Time format is "HH:mm" (24-hour, zero-padded).
+- Midnight-spanning schedules are not supported in MVP.
 
 ### Performance
 
 - Prefer `React.memo` for presentational components where useful.
 - Avoid inline handlers in render; use `useCallback`.
 - Use `FlatList` for lists (see `components/EventList.tsx`).
+
+## Data & State Patterns
+
+- Zustand store uses `persist` middleware with AsyncStorage.
+- When creating schedules, ensure `createdAt` and `updatedAt` are set.
+- Notification scheduling is handled in `utils/notifications.ts`.
+
+## Testing Notes
+
+- Tests live in `__tests__/` and use `jest-expo`.
+- Single test file: `npm test -- timeUtils.test.ts`.
+- Jest config: `jest.config.js` (testMatch: `**/__tests__/**/*.test.ts?(x)`).
+- Update `jest.config.js` only if necessary.
 
 ## Project Structure (Key Paths)
 
@@ -146,18 +160,6 @@ utils/          Helpers (time, storage, notifications)
 constants/      App constants and themes
 __tests__/      Jest tests
 ```
-
-## Testing Notes
-
-- Tests live in `__tests__/` and use `jest-expo`.
-- Single test file: `npm test -- timeUtils.test.ts`.
-- Update `jest.config.js` only if necessary.
-
-## Data & State Patterns
-
-- Zustand store uses `persist` middleware with AsyncStorage.
-- When creating schedules, ensure `createdAt` and `updatedAt` are set.
-- Notification scheduling is handled in `utils/notifications.ts`.
 
 ## Docs to Follow
 
